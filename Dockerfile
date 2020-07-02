@@ -16,6 +16,17 @@ RUN sudo apt-get clean
 # Install PHP extensions.
 RUN sudo docker-php-ext-install pdo_mysql bcmath gd
 
+# Install php imagick
+RUN export CFLAGS="$PHP_CFLAGS" CPPFLAGS="$PHP_CPPFLAGS" LDFLAGS="$PHP_LDFLAGS" \
+  && sudo apt-get update \
+  && sudo apt-get install -y --no-install-recommends \
+      libmagickwand-dev \
+  && sudo rm -rf /var/lib/apt/lists/* \
+  && sudo touch /usr/local/etc/php/conf.d/docker-php-imagick.ini \
+  && sudo pear config-set php_ini /usr/local/etc/php/conf.d/docker-php-imagick.ini \
+  && sudo pecl install imagick \
+  && sudo docker-php-ext-enable imagick
+
 # Install dockerize
 RUN export DOCKERIZE_VERSION="v0.3.0" && sudo wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
