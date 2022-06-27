@@ -1,14 +1,14 @@
-FROM circleci/php:7.3.9-cli-node
+FROM circleci/php:7.4.27-cli-node
 
-# Make composer packages executable.
-ENV PATH="/home/circleci/.composer/vendor/bin:${PATH}"
+# Make Composer packages executable.
+ENV PATH="/home/circleci/.config/composer/vendor/bin:${PATH}"
 
-# Install drush, prestissimo and coder.
-RUN composer global require drush/drush-launcher hirak/prestissimo drupal/coder \
-  && phpcs --config-set installed_paths ~/.composer/vendor/drupal/coder/coder_sniffer \
+# Install Drush and Coder.
+RUN composer global require drush/drush-launcher drupal/coder \
+  && phpcs --config-set installed_paths ~/.config/composer/vendor/drupal/coder/coder_sniffer \
     && composer clearcache
 
-# Install commonly used tools and libraries
+# Install commonly used tools and libraries.
 RUN sudo apt-get update
 RUN sudo apt-get install default-mysql-client libpng-dev imagemagick vim
 RUN sudo apt-get clean
@@ -16,7 +16,7 @@ RUN sudo apt-get clean
 # Install PHP extensions.
 RUN sudo docker-php-ext-install pdo_mysql bcmath gd
 
-# Install php imagick
+# Install PHP Imagick.
 RUN export CFLAGS="$PHP_CFLAGS" CPPFLAGS="$PHP_CPPFLAGS" LDFLAGS="$PHP_LDFLAGS" \
   && sudo apt-get update \
   && sudo apt-get install -y --no-install-recommends \
@@ -27,11 +27,8 @@ RUN export CFLAGS="$PHP_CFLAGS" CPPFLAGS="$PHP_CPPFLAGS" LDFLAGS="$PHP_LDFLAGS" 
   && sudo pecl install imagick \
   && sudo docker-php-ext-enable imagick
 
-# Install dockerize
+# Install Dockerize.
 RUN export DOCKERIZE_VERSION="v0.3.0" && sudo wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && sudo rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-# Add custom php config. Increase memory to 256M
+# Add custom PHP config. Increase memory to 256M.
 COPY conf/php/memory.ini /usr/local/etc/php/conf.d/memory.ini
-
-
-
